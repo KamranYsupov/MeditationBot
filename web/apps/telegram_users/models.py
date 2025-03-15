@@ -12,10 +12,16 @@ from web.db.model_mixins import (
 class TelegramUser(AbstractTelegramUser):
     """Модель telegram пользователя"""
 
+    full_name = models.CharField(_('Имя'), max_length=200)
     phone_number = models.CharField(
         _('Номер телефона'),
         max_length=50,
         unique=True,
+    )
+    city = models.CharField(
+        _('Город'),
+        max_length=50,
+        db_index=True,
     )
     time_joined = models.DateTimeField(
         _('Время добавления'),
@@ -28,5 +34,4 @@ class TelegramUser(AbstractTelegramUser):
         ordering = ['-time_joined']
 
     def __str__(self):
-        return self.username if self.username \
-            else f'Пользователь {self.telegram_id}'
+        return self.full_name

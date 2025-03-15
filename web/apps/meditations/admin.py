@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Meditation
+
+
+@admin.register(Meditation)
+class MeditationAdmin(admin.ModelAdmin):
+    pass

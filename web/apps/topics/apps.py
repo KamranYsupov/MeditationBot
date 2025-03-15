@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 
 
-class LinksConfig(AppConfig):
+class TopicsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'web.apps.links'
+    name = 'web.apps.topics'
+    verbose_name = 'Темы'

@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 
-class SingletonModelAdminMixin(admin.ModelAdmin):
+class SingletonModelAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 

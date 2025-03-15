@@ -30,11 +30,10 @@ INSTALLED_APPS = [
     # Приложения
     'web.apps.telegram_users',
     'web.apps.reviews',
-    'web.apps.links',
+    'web.apps.topics',
     'web.apps.notifications',
     'web.apps.meditations',
     'web.apps.bot_settings',
-
 ]
 
 MIDDLEWARE = [
@@ -68,14 +67,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'web.core.wsgi.application'
 
 
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASS'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT', 5432),
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -107,6 +108,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MAX_UPLOAD_FILE_SIZE = 31457280 # 30 MB
+REVIEWS_CHAT_ID = os.getenv('REVIEWS_CHAT_ID')
 
 # Настройки бота
 BOT_TOKEN = os.getenv('BOT_TOKEN')

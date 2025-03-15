@@ -9,8 +9,8 @@ from web.db.model_mixins import (
 from web.validators.file import FileValidator
 
 
-class Meditation(AsyncBaseModel):
-    """Модель медитации"""
+class Topic(AsyncBaseModel):
+    """Модель темы"""
 
     name = models.CharField(
         _('Название'),
@@ -18,9 +18,9 @@ class Meditation(AsyncBaseModel):
         unique=True
     )
     file = models.FileField(
-        _('Аудиофайл(mp3)'),
-        upload_to='meditations/',
-        validators=[FileValidator(allowed_extensions=('.mp3', ))]
+        _('Фото/Аудиофайл/Видео'),
+        upload_to='topics/',
+        validators=[FileValidator()],
     )
     text = models.TextField(
         _('Текст'),
@@ -28,8 +28,8 @@ class Meditation(AsyncBaseModel):
     )
 
     class Meta:
-        verbose_name = _('Медитация')
-        verbose_name_plural = _('Медитации')
+        verbose_name = _('Тема')
+        verbose_name_plural = _('Темы')
 
     def __str__(self):
         return self.name

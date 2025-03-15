@@ -1,7 +1,5 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from asgiref.sync import sync_to_async
 
 from web.db.model_mixins import (
     AsyncBaseModel,
@@ -15,5 +13,20 @@ class Review(AsyncBaseModel):
     meditation = models.ForeignKey(
         'meditations.Meditation',
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='reviews',
+        verbose_name=_('Медитация')
     )
+    telegram_user = models.ForeignKey(
+        'telegram_users.TelegramUser',
+        on_delete=models.SET_NULL,
+        related_name='reviews',
+        verbose_name=_('Пользователь'),
+        null=True,
+    )
+
+    class Meta:
+        verbose_name = _('Отзыв')
+        verbose_name_plural = _('Отзывы')
+
+    def __str__(self):
+        return self.text[:100]

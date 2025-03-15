@@ -7,6 +7,8 @@ import loguru
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 
+from bot.loader import bot, dp
+
 
 async def main():
     """Запуск бота"""
@@ -17,8 +19,6 @@ async def main():
     from middlewares.throttling import rate_limit_middleware
     from handlers.routing import get_main_router
 
-    bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties())
-    dp = Dispatcher()
     
     try:
         dp.message.middleware(rate_limit_middleware)
