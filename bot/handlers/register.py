@@ -62,3 +62,4 @@ async def process_phone_number(
         'Регистрация успешно завершена!',
         reply_markup=reply_menu_keyboard,
     )
+    await state.clear()
