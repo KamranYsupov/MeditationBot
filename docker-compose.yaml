@@ -4,6 +4,8 @@ x-function: &base_python
   volumes:
     - ./:/app/:rw  
     - poetry-volume:/poetry:delegated
+    - static_dir:/app/web/static/
+    - media_dir:/app/web/media/
   environment: &env-vars
     POETRY_HOME: /poetry
     PYTHONPATH: /app
@@ -58,9 +60,6 @@ services:
       context: .
       dockerfile: web.dockerfile
     container_name: ${PROJECT_NAME}_web
-    volumes:
-      - static_dir:/app/web/static/  
-      - media_dir:/app/web/media/ 
 
   bot:
     <<: *base_python
