@@ -23,10 +23,15 @@ router = Router()
 
 
 @router.message(F.text == 'Меню 📁')
+@router.callback_query(F.data == 'menu')
 async def menu_handler(
-        message: types.Message,
+        aiogram_type: Union[types.Message, types.CallbackQuery],
 ):
-    await message.answer(
+    if isinstance(aiogram_type, types.CallbackQuery):
+        await aiogram_type.message.delete()
+        aiogram_type: types.Message = aiogram_type.message
+
+    await aiogram_type.answer(
         'Выберите пункт меню.',
         reply_markup=await get_inline_menu_keyboard()
     )
@@ -57,11 +62,12 @@ async def meditations_handler(
     if not pagination_buttons:
         pass
     elif len(pagination_buttons.items()) == 1:
-        sizes += (1, )
+        sizes += (1, 1)
     else:
-        sizes += (2, )
+        sizes += (2, 1)
 
     buttons.update(pagination_buttons)
+    buttons['Назад'] = 'menu'
 
     await callback.message.edit_text(
         'Выберите медитацию',
@@ -97,12 +103,12 @@ async def topics_handler(
     if not pagination_buttons:
         pass
     elif len(pagination_buttons.items()) == 1:
-        sizes += (1, )
+        sizes += (1, 1)
     else:
-        sizes += (2, )
+        sizes += (2, 1)
 
     buttons.update(pagination_buttons)
-
+    buttons['Назад'] = 'menu'
     await callback.message.edit_text(
         'Выберите тему',
         reply_markup=get_inline_keyboard(
@@ -124,24 +130,26 @@ async def topic_or_meditation_handler(
     if not obj:
         return
 
-    reply_markup = None
+    buttons = {}
 
     if isinstance(obj, Meditation):
-        reply_markup = get_inline_keyboard(
-            buttons={'Оставить отзыв 📝': f'review_meditation_{obj.id}'}
-        )
+        buttons['Оставить отзыв 📝'] = f'review_meditation_{obj.id}'
 
     bot_send_method = get_bot_method_by_file_extension(
         file_name=obj.file.name,
         bot=callback.bot
     )
+    buttons['Назад'] = 'menu'
 
     obj_file = FSInputFile(obj.file.path)
+    await callback.message.delete()
     await bot_send_method(
         callback.from_user.id, # chat_id
         obj_file,
         caption=obj.text,
-        reply_markup=reply_markup
+        reply_markup=get_inline_keyboard(
+            buttons=buttons
+        )
     )
 
 
@@ -198,15 +206,20 @@ async def review_meditation_handler(
 @router.callback_query(F.data == 'reviews')
 async def menu_options_handler(
         callback: types.CallbackQuery,
-        state: FSMContext,
 ):
     bot_messages: BotMessages = await sync_to_async(BotMessages.load)()
-
     option = callback.data
+    reply_markup = get_inline_keyboard(
+        buttons={'Назад': 'menu'}
+    )
+
+    await callback.message.delete()
     if option == 'society':
-        await callback.message.delete()
         society_video = FSInputFile(bot_messages.society_video.path)
-        await callback.message.answer_video(video=society_video)
+        await callback.message.answer_video(
+            video=society_video,
+            reply_markup=reply_markup,
+        )
 
         return
 
@@ -222,6 +235,7 @@ async def menu_options_handler(
             callback.from_user.id,  # chat_id
             reviews_file,
             caption=text,
+            reply_markup=reply_markup,
         )
         return
 
@@ -235,11 +249,12 @@ async def menu_options_handler(
             callback.from_user.id,  # chat_id
             about_teacher_video,
             caption=text,
+            reply_markup=reply_markup,
         )
         return
 
 
-    await callback.message.edit_text(text, reply_markup=None)
+    await callback.message.answer(text, reply_markup=reply_markup)
 
 
 
