@@ -11,6 +11,9 @@ class BotMessagesAdmin(SingletonModelAdmin):
         (_('Приветствие'), {
             'fields': ('welcome_video',)
         }),
+        (_('Медитации'), {
+            'fields': ('enter_info_text',),
+        }),
         (_('Об учителе'), {
             'fields': ('about_teacher_video', 'about_teacher_text'),
             'description': _('Раздел с информацией о преподавателе')
