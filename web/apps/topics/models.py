@@ -17,14 +17,9 @@ class Topic(AsyncBaseModel):
         max_length=100,
         unique=True
     )
-    file = models.FileField(
-        _('Фото/Аудиофайл/Видео'),
-        upload_to='topics/',
-        validators=[FileValidator()],
-    )
-    text = models.TextField(
-        _('Текст'),
-        max_length=1000
+    link = models.URLField(
+        _('Ссылка'),
+        max_length=200,
     )
 
     class Meta:

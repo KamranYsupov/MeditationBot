@@ -26,10 +26,10 @@ def get_inline_keyboard(
 async def get_inline_menu_keyboard():
     keyboard = get_inline_keyboard(
         buttons={
-            'Начать медитацию': 'meditations_1',
+            'Пробная медитация': 'meditations_1',
             'Об учителе': 'about_teacher',
             'О технологии': 'topics_1',
-            'Полезные статьи': 'useful_posts',
+            'Полезная информация': 'useful_posts',
             'Сообщество': 'society',
             'Ответы на вопросы': 'faq',
             'Отзывы': 'reviews',

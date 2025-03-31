@@ -18,6 +18,10 @@ class BotMessages(AsyncBaseModel, SingletonModelMixin):
             allowed_extensions=('.mp4', )
         )],
     )
+    enter_info_text = models.TextField(
+        _('Текст "Вводная информация"'),
+        max_length=4000,
+    )
     about_teacher_video = models.FileField(
         _('Видео об учителе'),
         validators=[

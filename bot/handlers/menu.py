@@ -4,6 +4,7 @@ import loguru
 from aiogram import Router, types, F
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from aiogram.types import InputFile, FSInputFile
 from asgiref.sync import sync_to_async
 from django.conf import settings
@@ -66,6 +67,7 @@ async def meditations_handler(
     else:
         sizes += (2, 1)
 
+    buttons['Вводная информация'] = f'enter_info_{page_number}'
     buttons.update(pagination_buttons)
     buttons['Назад'] = 'menu'
 
@@ -78,12 +80,27 @@ async def meditations_handler(
     )
 
 
+@router.callback_query(F.data.startswith('enter_info_'))
+async def enter_info_handler(
+        callback: types.CallbackQuery,
+):
+    previous_page_number = int(callback.data.split('_')[-1])
+    bot_messages: BotMessages = await sync_to_async(BotMessages.load)()
+
+    await callback.message.edit_text(
+        text=bot_messages.enter_info_text,
+        reply_markup=get_inline_keyboard(
+            buttons={'Назад': f'meditations_{previous_page_number}'}
+        )
+    )
+
+
 @router.callback_query(F.data.startswith('topics_'))
 async def topics_handler(
         callback: types.CallbackQuery,
 ):
     page_number = int(callback.data.split('_')[-1])
-    per_page = 5
+    per_page = 3
 
     topics = await Topic.objects.a_all()
     paginator = Paginator(
@@ -92,29 +109,45 @@ async def topics_handler(
         per_page=per_page
     )
 
-    buttons = {
-        topic.name: f'topic_{topic.id}'
-        for topic in paginator.get_page()
-    }
-    pagination_buttons = get_pagination_buttons(
-        paginator, prefix='topics_'
-    )
+    keyboard = InlineKeyboardBuilder()
+
+    for topic in paginator.get_page():
+        keyboard.add(
+            InlineKeyboardButton(
+                text=topic.name,
+                url=topic.link
+            )
+        )
+    pagination_buttons = []
+    if paginator.has_previous():
+        pagination_buttons.append(
+            InlineKeyboardButton(
+                text='◀️ Пред.',
+                callback_data=f'topics_{paginator.page_number - 1}'
+            )
+        )
+
+    if paginator.has_next():
+        pagination_buttons.append(
+            InlineKeyboardButton(
+                text='След. ▶️',
+                callback_data=f'topics_{paginator.page_number + 1}'
+            )
+        )
+
     sizes = (1,) * per_page
     if not pagination_buttons:
         pass
-    elif len(pagination_buttons.items()) == 1:
+    elif len(pagination_buttons) == 1:
         sizes += (1, 1)
     else:
         sizes += (2, 1)
 
-    buttons.update(pagination_buttons)
-    buttons['Назад'] = 'menu'
+    keyboard.add(*pagination_buttons)
+    keyboard.add(InlineKeyboardButton(text='Назад', callback_data='menu'))
     await callback.message.edit_text(
         'Выберите тему',
-        reply_markup=get_inline_keyboard(
-            buttons=buttons,
-            sizes=sizes
-        )
+        reply_markup=keyboard.adjust(*sizes).as_markup()
     )
 
 
