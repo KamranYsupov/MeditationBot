@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='topic',
             name='link',
-            field=models.URLField(verbose_name='Ссылка'),
+            field=models.URLField(default='https://google.com', verbose_name='Ссылка'),
             preserve_default=False,
         ),
     ]
