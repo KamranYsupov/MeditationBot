@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     # Приложения
     'web.apps.telegram_users',
     'web.apps.reviews',
-    'web.apps.topics',
+    'web.apps.information',
     'web.apps.notifications',
     'web.apps.meditations',
     'web.apps.bot_settings',
