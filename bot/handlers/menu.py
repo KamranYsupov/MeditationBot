@@ -356,6 +356,8 @@ async def menu_options_handler(
             bot_messages.reviews_file_3,
             bot_messages.reviews_file_4,
         ):
+            if not reviews_file:
+                continue
 
             bot_send_method = get_bot_method_by_file_extension(
                 file_name=reviews_file.name,
