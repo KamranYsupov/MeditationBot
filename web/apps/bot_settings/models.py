@@ -46,8 +46,26 @@ class BotMessages(AsyncBaseModel, SingletonModelMixin):
         _('Текст ответы на вопросы'),
         max_length=4000,
     )
-    reviews_file = models.FileField(
-        _('Видео/Фото отзывов'),
+    reviews_file_1 = models.FileField(
+        _('Видео/Фото отзывов 1'),
+        validators=[
+            FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
+        ]
+    )
+    reviews_file_2 = models.FileField(
+        _('Видео/Фото отзывов 2'),
+        validators=[
+            FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
+        ]
+    )
+    reviews_file_3 = models.FileField(
+        _('Видео/Фото отзывов 3'),
+        validators=[
+            FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
+        ]
+    )
+    reviews_file_4 = models.FileField(
+        _('Видео/Фото отзывов 4'),
         validators=[
             FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
         ]

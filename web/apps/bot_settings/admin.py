@@ -28,7 +28,13 @@ class BotMessagesAdmin(SingletonModelAdmin):
             'fields': ('faq_text',)
         }),
         (_('Отзывы'), {
-            'fields': ('reviews_file', 'reviews_text'),
+            'fields': (
+                'reviews_file_1',
+                'reviews_file_2',
+                'reviews_file_3',
+                'reviews_file_4',
+                'reviews_text'
+            ),
             'description': _('Медиафайлы и текстовые отзывы')
         }),
     )

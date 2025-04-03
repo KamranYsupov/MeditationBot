@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('topics', '0004_remove_topic_file_remove_topic_text_topic_link'),
+        ('information', '0004_remove_topic_file_remove_topic_text_topic_link'),
     ]
 
     operations = [

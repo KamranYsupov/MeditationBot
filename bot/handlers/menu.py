@@ -18,7 +18,7 @@ from web.apps.bot_settings.models import BotMessages
 from web.apps.meditations.models import Meditation
 from web.apps.reviews.models import Review
 from web.apps.telegram_users.models import TelegramUser
-from web.apps.topics.models import Topic
+from web.apps.information.models import Topic, Question
 
 router = Router()
 
@@ -100,9 +100,11 @@ async def topics_handler(
         callback: types.CallbackQuery,
 ):
     page_number = int(callback.data.split('_')[-1])
+    topics_type = callback.data.split('_')[-2].capitalize()
+
     per_page = 3
 
-    topics = await Topic.objects.a_all()
+    topics = await Topic.objects.afilter(type=topics_type)
     paginator = Paginator(
         array=topics,
         page_number=page_number,
@@ -231,11 +233,100 @@ async def review_meditation_handler(
         )
     )
 
+@router.callback_query(F.data.startswith('faq_'))
+async def faq_handler(
+        callback: types.CallbackQuery,
+):
+    page_number = int(callback.data.split('_')[-1])
+    per_page = 5
+
+    questions = await Question.objects.a_all()
+    paginator = Paginator(
+        array=questions,
+        page_number=page_number,
+        per_page=per_page
+    )
+
+    buttons = {
+        question.title: f'question_{question.id}'
+        for question in paginator.get_page()
+    }
+    pagination_buttons = get_pagination_buttons(
+        paginator, prefix='faq_'
+    )
+    sizes = (1,) * per_page
+    if not pagination_buttons:
+        pass
+    elif len(pagination_buttons.items()) == 1:
+        sizes += (1, 1)
+    else:
+        sizes += (2, 1)
+
+    buttons.update(pagination_buttons)
+    buttons['Назад'] = 'menu'
+
+    await callback.message.edit_text(
+        'Выберите интересующий вопрос',
+        reply_markup=get_inline_keyboard(
+            buttons=buttons,
+            sizes=sizes
+        )
+    )
+
+
+@router.callback_query(F.data.startswith('question_'))
+async def question_handler(
+        callback: types.CallbackQuery,
+):
+    question_id = callback.data.split('_')[-1]
+
+    question: Question = await Question.objects.aget(id=question_id)
+    if not question:
+        return
+
+    reply_markup = get_inline_keyboard(
+        buttons={'Назад': 'menu'}
+    )
+
+    await callback.message.delete()
+
+    is_any_file_sent = False
+
+    for question_file in (question.photo, question.video):
+        if not question_file:
+            continue
+
+        bot_send_method = get_bot_method_by_file_extension(
+            file_name=question_file.name,
+            bot=callback.bot
+        )
+
+        input_file = FSInputFile(question_file.path)
+        send_method_args = (
+            callback.from_user.id,
+            input_file,
+        )
+
+        if (is_any_file_sent or not question.video) and not question.text:
+            await bot_send_method(
+                *send_method_args,
+                reply_markup=reply_markup,
+            )
+        else:
+            await bot_send_method(*send_method_args)
+
+        is_any_file_sent = True
+
+    if question.text:
+        await callback.message.answer(
+            text=question.text,
+            reply_markup=reply_markup,
+        )
+
 
 @router.callback_query(F.data == 'about_teacher')
 @router.callback_query(F.data == 'useful_posts')
 @router.callback_query(F.data == 'society')
-@router.callback_query(F.data == 'faq')
 @router.callback_query(F.data == 'reviews')
 async def menu_options_handler(
         callback: types.CallbackQuery,
@@ -259,16 +350,26 @@ async def menu_options_handler(
     text = getattr(bot_messages, f'{option}_text')
 
     if option == 'reviews':
-        bot_send_method = get_bot_method_by_file_extension(
-            file_name=bot_messages.reviews_file.name,
-            bot=callback.bot
-        )
-        reviews_file = FSInputFile(bot_messages.reviews_file.path)
-        await bot_send_method(
-            callback.from_user.id,  # chat_id
-            reviews_file,
-            caption=text,
-            reply_markup=reply_markup,
+        for reviews_file in (
+            bot_messages.reviews_file_1,
+            bot_messages.reviews_file_2,
+            bot_messages.reviews_file_3,
+            bot_messages.reviews_file_4,
+        ):
+
+            bot_send_method = get_bot_method_by_file_extension(
+                file_name=reviews_file.name,
+                bot=callback.bot
+            )
+            input_file = FSInputFile(reviews_file.path)
+            await bot_send_method(
+                callback.from_user.id,
+                input_file,
+            )
+
+        await callback.message.answer(
+            text,
+            reply_markup=reply_markup
         )
         return
 

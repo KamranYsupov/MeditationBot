@@ -18,9 +18,9 @@ class Meditation(AsyncBaseModel):
         unique=True
     )
     file = models.FileField(
-        _('Аудиофайл(mp3)'),
+        _('Видеофайл(mp4)'),
         upload_to='meditations/',
-        validators=[FileValidator(allowed_extensions=('.mp3', ))]
+        validators=[FileValidator(allowed_extensions=('.mp4', ))]
     )
     text = models.TextField(
         _('Текст'),

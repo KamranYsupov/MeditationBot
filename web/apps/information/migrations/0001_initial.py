@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.CharField(db_index=True, default=web.db.model_mixins.ulid_default, editable=False, max_length=26, primary_key=True, serialize=False, unique=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Название')),
-                ('file', models.FileField(upload_to='topics/', validators=[web.validators.file.FileValidator()], verbose_name='Фото/Аудиофайл/Видео')),
+                ('file', models.FileField(upload_to='information/', validators=[web.validators.file.FileValidator()], verbose_name='Фото/Аудиофайл/Видео')),
                 ('text', models.TextField(max_length=1000, verbose_name='Текст')),
             ],
             options={

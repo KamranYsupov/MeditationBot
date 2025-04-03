@@ -28,10 +28,10 @@ async def get_inline_menu_keyboard():
         buttons={
             'Пробная медитация': 'meditations_1',
             'Об учителе': 'about_teacher',
-            'О технологии': 'topics_1',
-            'Полезная информация': 'useful_posts',
+            'О технологии': 'topics_tech_1',
+            'Полезная информация': 'topics_post_1',
             'Сообщество': 'society',
-            'Ответы на вопросы': 'faq',
+            'Ответы на вопросы': 'faq_1',
             'Отзывы': 'reviews',
         },
         as_markup=False,
