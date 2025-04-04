@@ -109,7 +109,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MAX_UPLOAD_FILE_SIZE = 31457280 # 30 MB
+MAX_UPLOAD_FILE_SIZE = 524288000 # 500 MB
 REVIEWS_CHAT_ID = os.getenv('REVIEWS_CHAT_ID')
 
 # Настройки бота
