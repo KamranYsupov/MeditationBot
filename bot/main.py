@@ -12,9 +12,6 @@ from bot.loader import bot, dp
 
 async def main():
     """Запуск бота"""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'web.core.settings')
-
-    django.setup()
 
     from middlewares.throttling import rate_limit_middleware
     from handlers.routing import get_main_router

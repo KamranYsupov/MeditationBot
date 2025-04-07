@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     
     # Приложения
     'web.apps.telegram_users',
-    'web.apps.reviews',
     'web.apps.information',
     'web.apps.notifications',
     'web.apps.meditations',
@@ -118,4 +117,11 @@ BOT_USERNAME = os.getenv('BOT_USERNAME')
 BOT_LINK = f'https://t.me/{BOT_USERNAME}'
 MAX_MESSAGE_PER_SECOND = int(os.getenv('MAX_MESSAGE_PER_SECOND', 1))
 
+TELEGRAM_SERVER_HOST = os.getenv('TELEGRAM_SERVER_HOST', 'localhost')
+TELEGRAM_SERVER_PORT = os.getenv('TELEGRAM_SERVER_PORT')
+TELEGRAM_API_ID = os.getenv('TELEGRAM_API_ID')
+TELEGRAM_API_HASH = os.getenv('TELEGRAM_API_HASH')
+TELEGRAM_SERVER_URL = f'http://{TELEGRAM_SERVER_HOST}:{TELEGRAM_SERVER_PORT}'
+
 TELEGRAM_API_URL = 'https://api.telegram.org'
+

@@ -32,7 +32,7 @@ async def get_inline_menu_keyboard():
             'Полезная информация': 'topics_post_1',
             'Сообщество': 'society',
             'Ответы на вопросы': 'faq_1',
-            'Отзывы': 'reviews',
+            'Отзывы': 'reviews_1',
         },
         as_markup=False,
     )

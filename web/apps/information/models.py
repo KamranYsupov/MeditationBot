@@ -39,8 +39,8 @@ class Topic(AsyncBaseModel):
     )
 
     class Meta:
-        verbose_name = _('Тема')
-        verbose_name_plural = _('Темы')
+        verbose_name = _('О технологии / Полезная информация')
+        verbose_name_plural = _('О технологии / Полезная информация')
 
     def __str__(self):
         return self.name

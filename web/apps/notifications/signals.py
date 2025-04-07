@@ -7,8 +7,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import transaction
 
-from bot.loader import bot
-from bot.utils.message import get_bot_method_by_file_extension
 from .models import Notification
 from ...services.telegram import telegram_service
 

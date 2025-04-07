@@ -69,11 +69,27 @@ services:
     container_name: ${PROJECT_NAME}_bot
     command: python bot/main.py
 
+  telegram-server:
+    image: aiogram/telegram-bot-api:latest
+    container_name: ${PROJECT_NAME}_telegram-server
+    environment:
+      TELEGRAM_API_ID: ${TELEGRAM_API_ID}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH}
+    volumes:
+      - telegram-bot-api-data:/var/lib/telegram-bot-api
+    ports:
+      - ${TELEGRAM_SERVER_PORT}:${TELEGRAM_SERVER_PORT}
+    networks:
+      - internal
+    depends_on:
+      - bot
+
 volumes:
   static_dir:
   media_dir:
   pg_data:
   poetry-volume:                 
+  telegram-bot-api-data:
 
 networks:
   internal:

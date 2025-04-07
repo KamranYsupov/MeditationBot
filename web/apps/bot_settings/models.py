@@ -42,50 +42,6 @@ class BotMessages(AsyncBaseModel, SingletonModelMixin):
             FileValidator(allowed_extensions=('.mp4', ))
         ]
     )
-    faq_text = models.TextField(
-        _('Текст ответы на вопросы'),
-        max_length=4000,
-    )
-    reviews_file_1 = models.FileField(
-        _('Видео/Фото отзывов 1'),
-        validators=[
-            FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
-        ],
-        blank=True,
-        default=None,
-        null=True,
-    )
-    reviews_file_2 = models.FileField(
-        _('Видео/Фото отзывов 2'),
-        validators=[
-            FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
-        ],
-        blank=True,
-        default=None,
-        null=True,
-    )
-    reviews_file_3 = models.FileField(
-        _('Видео/Фото отзывов 3'),
-        validators=[
-            FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
-        ],
-        blank=True,
-        default=None,
-        null=True,
-    )
-    reviews_file_4 = models.FileField(
-        _('Видео/Фото отзывов 4'),
-        validators=[
-            FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
-        ],
-        blank=True,
-        default=None,
-        null=True,
-    )
-    reviews_text = models.TextField(
-        _('Текст отзывы'),
-        max_length=4000,
-    )
 
     class Meta:
         verbose_name = _('Сообщения бота')
@@ -107,3 +63,20 @@ class Links(AsyncBaseModel, SingletonModelMixin):
 
     def __str__(self):
         return ''
+
+
+class BotReview(AsyncBaseModel):
+    """Модель отзывов бота"""
+    file = models.FileField(
+        _('Видео/Фото отзывов'),
+        validators=[
+            FileValidator(allowed_extensions=('.mp4', '.jpg', '.jpeg', '.png'))
+        ],
+    )
+
+    class Meta:
+        verbose_name = _('Отзыв бота')
+        verbose_name_plural = _('Отзывы бота')
+
+    def __str__(self):
+        return self.file.name

@@ -22,6 +22,13 @@ class Meditation(AsyncBaseModel):
         upload_to='meditations/',
         validators=[FileValidator(allowed_extensions=('.mp4', ))]
     )
+    file_id = models.CharField(
+        _('File id'),
+        max_length=50,
+        default=None,
+        null=True,
+        blank=True
+    )
     text = models.TextField(
         _('Текст'),
         max_length=1000
@@ -33,3 +40,29 @@ class Meditation(AsyncBaseModel):
 
     def __str__(self):
         return self.name
+
+
+class Review(AsyncBaseModel):
+    """Модель отзыва медитации"""
+
+    text = models.TextField(_('Текст'))
+    meditation = models.ForeignKey(
+        'meditations.Meditation',
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name=_('Медитация')
+    )
+    telegram_user = models.ForeignKey(
+        'telegram_users.TelegramUser',
+        on_delete=models.SET_NULL,
+        related_name='reviews',
+        verbose_name=_('Пользователь'),
+        null=True,
+    )
+
+    class Meta:
+        verbose_name = _('Отзыв медитации')
+        verbose_name_plural = _('Отзывы медитаций')
+
+    def __str__(self):
+        return self.text[:100]

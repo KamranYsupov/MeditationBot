@@ -1,7 +1,8 @@
-from typing import Union
+from typing import Union, List
 
 import loguru
 from aiogram import Router, types, F
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
@@ -14,9 +15,8 @@ from bot.keyboards.inline import get_inline_keyboard, get_inline_menu_keyboard
 from bot.keyboards.reply import reply_cancel_keyboard, reply_menu_keyboard
 from bot.utils.message import get_bot_method_by_file_extension
 from bot.utils.pagination import Paginator, get_pagination_buttons
-from web.apps.bot_settings.models import BotMessages
-from web.apps.meditations.models import Meditation
-from web.apps.reviews.models import Review
+from web.apps.bot_settings.models import BotMessages, BotReview
+from web.apps.meditations.models import Meditation, Review
 from web.apps.telegram_users.models import TelegramUser
 from web.apps.information.models import Topic, Question
 
@@ -100,11 +100,11 @@ async def topics_handler(
         callback: types.CallbackQuery,
 ):
     page_number = int(callback.data.split('_')[-1])
-    topics_type = callback.data.split('_')[-2].capitalize()
+    topics_type = callback.data.split('_')[-2]
 
     per_page = 3
 
-    topics = await Topic.objects.afilter(type=topics_type)
+    topics = await Topic.objects.afilter(type=topics_type.capitalize())
     paginator = Paginator(
         array=topics,
         page_number=page_number,
@@ -120,12 +120,13 @@ async def topics_handler(
                 url=topic.link
             )
         )
+
     pagination_buttons = []
     if paginator.has_previous():
         pagination_buttons.append(
             InlineKeyboardButton(
                 text='◀️ Пред.',
-                callback_data=f'topics_{paginator.page_number - 1}'
+                callback_data=f'topics_{topics_type}_{paginator.page_number - 1}'
             )
         )
 
@@ -133,7 +134,7 @@ async def topics_handler(
         pagination_buttons.append(
             InlineKeyboardButton(
                 text='След. ▶️',
-                callback_data=f'topics_{paginator.page_number + 1}'
+                callback_data=f'topics_{topics_type}_{paginator.page_number + 1}'
             )
         )
 
@@ -154,38 +155,48 @@ async def topics_handler(
 
 
 @router.callback_query(F.data.startswith('meditation_'))
-@router.callback_query(F.data.startswith('topic_'))
-async def topic_or_meditation_handler(
+async def meditation_handler(
         callback: types.CallbackQuery,
 ):
-    model = Topic if callback.data.split('_')[0] == 'topic' else Meditation
-    obj_id = callback.data.split('_')[-1]
+    meditation_id = callback.data.split('_')[-1]
 
-    obj: Union[Topic, Meditation] = await model.objects.aget(id=obj_id)
-    if not obj:
+    meditation: Meditation = await Meditation.objects.aget(id=meditation_id)
+    if not meditation:
         return
 
     buttons = {}
-
-    if isinstance(obj, Meditation):
-        buttons['Оставить отзыв 📝'] = f'review_meditation_{obj.id}'
-
-    bot_send_method = get_bot_method_by_file_extension(
-        file_name=obj.file.name,
-        bot=callback.bot
-    )
+    buttons['Оставить отзыв 📝'] = f'review_meditation_{meditation.id}'
     buttons['Назад'] = 'menu'
 
-    obj_file = FSInputFile(obj.file.path)
-    await callback.message.delete()
-    await bot_send_method(
-        callback.from_user.id, # chat_id
-        obj_file,
-        caption=obj.text,
-        reply_markup=get_inline_keyboard(
-            buttons=buttons
+
+    async def send_input_meditation_file():
+        meditation_file = FSInputFile(meditation.file.path)
+
+        await callback.message.edit_text('Отправляю медитацию . . .')
+        video_message = await callback.message.answer_video(
+            video=meditation_file,
+            caption=meditation.text,
+            reply_markup=get_inline_keyboard(
+                buttons=buttons
+            )
         )
-    )
+        meditation.file_id = video_message.video.file_id
+        await meditation.asave()
+
+    if not meditation.file_id:
+        await send_input_meditation_file()
+        return
+
+    try:
+        await callback.message.answer_video(
+            video=meditation.file_id,
+            caption=meditation.text,
+            reply_markup=get_inline_keyboard(
+                buttons=buttons
+            )
+        )
+    except TelegramBadRequest:
+        await send_input_meditation_file()
 
 
 @router.callback_query(F.data.startswith('review_meditation_'))
@@ -324,10 +335,49 @@ async def question_handler(
         )
 
 
+@router.callback_query(F.data.startswith('reviews_'))
+async def reviews_callback_handler(
+        callback: types.CallbackQuery,
+):
+    page_number = int(callback.data.split('_')[-1])
+    reviews: List[BotReview] = await BotReview.objects.a_all()
+
+    paginator = Paginator(
+        page_number=page_number,
+        per_page=5,
+        array=reviews
+    )
+    page = paginator.get_page()
+    for review in page:
+
+        bot_send_method = get_bot_method_by_file_extension(
+            file_name=review.file.name,
+            bot=callback.bot
+        )
+        input_file = FSInputFile(review.file.path)
+
+        if review != page[-1]:
+            reply_markup = None
+        else:
+            buttons = {}
+            if paginator.has_next():
+                buttons['Далее'] = f'reviews_{page_number + 1}'
+
+            buttons['Назад'] = 'menu'
+
+
+            reply_markup = get_inline_keyboard(buttons=buttons)
+
+        await bot_send_method(
+            callback.from_user.id,
+            input_file,
+            reply_markup=reply_markup
+        )
+
+
 @router.callback_query(F.data == 'about_teacher')
 @router.callback_query(F.data == 'useful_posts')
 @router.callback_query(F.data == 'society')
-@router.callback_query(F.data == 'reviews')
 async def menu_options_handler(
         callback: types.CallbackQuery,
 ):
@@ -349,32 +399,6 @@ async def menu_options_handler(
 
     text = getattr(bot_messages, f'{option}_text')
 
-    if option == 'reviews':
-        for reviews_file in (
-            bot_messages.reviews_file_1,
-            bot_messages.reviews_file_2,
-            bot_messages.reviews_file_3,
-            bot_messages.reviews_file_4,
-        ):
-            if not reviews_file:
-                continue
-
-            bot_send_method = get_bot_method_by_file_extension(
-                file_name=reviews_file.name,
-                bot=callback.bot
-            )
-            input_file = FSInputFile(reviews_file.path)
-            await bot_send_method(
-                callback.from_user.id,
-                input_file,
-            )
-
-        await callback.message.answer(
-            text,
-            reply_markup=reply_markup
-        )
-        return
-
     if option == 'about_teacher':
         bot_send_method = get_bot_method_by_file_extension(
             file_name=bot_messages.about_teacher_video.name,
@@ -382,7 +406,7 @@ async def menu_options_handler(
         )
         about_teacher_video = FSInputFile(bot_messages.about_teacher_video.path)
         await bot_send_method(
-            callback.from_user.id,  # chat_id
+            callback.from_user.id,
             about_teacher_video,
             caption=text,
             reply_markup=reply_markup,
