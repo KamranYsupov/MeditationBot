@@ -24,7 +24,7 @@ class Meditation(AsyncBaseModel):
     )
     file_id = models.CharField(
         _('File id'),
-        max_length=50,
+        max_length=150,
         default=None,
         null=True,
         blank=True
