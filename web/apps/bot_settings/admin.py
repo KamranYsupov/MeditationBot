@@ -9,7 +9,7 @@ from .models import Links, BotMessages, BotReview
 class BotMessagesAdmin(SingletonModelAdmin):
     fieldsets = (
         (_('Приветствие'), {
-            'fields': ('welcome_video',)
+            'fields': ('welcome_video', 'welcome_text')
         }),
         (_('Медитации'), {
             'fields': ('enter_info_text',),

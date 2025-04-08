@@ -26,16 +26,12 @@ async def start_command_handler(
         return
 
     button_text = 'Отправить номер телефона 📲'
-    caption = (
-        text + 'Для регистрации '
-        f'нажмите на кнопу <b><em>"{button_text}"</em></b>, чтобы его отправить'
-    )
 
     bot_messages: BotMessages = await sync_to_async(BotMessages.load)()
     welcome_video = FSInputFile(bot_messages.welcome_video.path)
     await message.answer_video(
         video=welcome_video,
-        caption=caption,
+        caption=bot_messages.welcome_text,
         reply_markup=get_reply_contact_keyboard(button_text),
     )
 

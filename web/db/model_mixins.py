@@ -75,3 +75,13 @@ class SingletonModelMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class OrderMixin(models.Model):
+    order = models.PositiveIntegerField(
+        _('Порядок'),
+        default=0,
+    )
+
+    class Meta:
+        abstract = True

@@ -5,11 +5,12 @@ from asgiref.sync import sync_to_async
 
 from web.db.model_mixins import (
     AsyncBaseModel,
+    OrderMixin
 )
 from web.validators.file import FileValidator
 
 
-class Meditation(AsyncBaseModel):
+class Meditation(AsyncBaseModel, OrderMixin):
     """Модель медитации"""
 
     name = models.CharField(
@@ -34,10 +35,6 @@ class Meditation(AsyncBaseModel):
         max_length=1000
     )
 
-    order = models.PositiveIntegerField(
-        _('Порядок'),
-        default=0,
-    )
 
     class Meta:
         verbose_name = _('Медитация')

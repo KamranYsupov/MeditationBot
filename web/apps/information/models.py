@@ -6,11 +6,12 @@ from asgiref.sync import sync_to_async
 
 from web.db.model_mixins import (
     AsyncBaseModel,
+    OrderMixin
 )
 from web.validators.file import FileValidator
 
 
-class Topic(AsyncBaseModel):
+class Topic(AsyncBaseModel, OrderMixin):
     """Модель темы"""
 
     TECHNOLOGY = 'Tech'
@@ -41,12 +42,13 @@ class Topic(AsyncBaseModel):
     class Meta:
         verbose_name = _('О технологии / Полезная информация')
         verbose_name_plural = _('О технологии / Полезная информация')
+        ordering = ['order']
 
     def __str__(self):
         return self.name
 
 
-class Question(AsyncBaseModel):
+class Question(AsyncBaseModel, OrderMixin):
     """Модель вопроса"""
 
     title = models.CharField(
@@ -83,6 +85,7 @@ class Question(AsyncBaseModel):
     class Meta:
         verbose_name = _('Вопрос')
         verbose_name_plural = _('Вопросы')
+        ordering = ['order']
 
     def __str__(self):
         return self.title

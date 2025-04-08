@@ -18,6 +18,12 @@ class BotMessages(AsyncBaseModel, SingletonModelMixin):
             allowed_extensions=('.mp4', )
         )],
     )
+    welcome_text = models.TextField(
+        _('Приветственный текст'),
+        max_length=1000,
+        default=''
+    )
+
     enter_info_text = models.TextField(
         _('Текст "Вводная информация"'),
         max_length=4000,
