@@ -208,7 +208,7 @@ async def review_meditation_handler(
 
     await callback.message.edit_reply_markup(reply_markup=None)
     await callback.message.answer(
-        'Отправьте свой отзыв.',
+        'Отправьте свой отзыв или вопрос.',
         reply_markup=reply_cancel_keyboard,
     )
     await state.update_data(meditation_id=meditation_id)
