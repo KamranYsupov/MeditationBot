@@ -75,7 +75,6 @@ class Question(AsyncBaseModel):
 
     text = models.TextField(
         _('Текст'),
-        max_length=900,
         null=True,
         blank=True,
         default=None,
@@ -91,5 +90,18 @@ class Question(AsyncBaseModel):
 
     def clean(self):
         super().clean()
+
         if not self.video and not self.photo and not self.text:
             raise ValidationError('Текст, фото или видео должно быть добавлено')
+
+        if not self.text:
+            return
+
+        if (self.video or self.photo) and len(self.text) > 1000:
+            raise ValidationError(
+                'При добавлении медиафайла длина текста на должна превышать 1000 символов'
+            )
+
+        if len(self.text) > 4000:
+            raise ValidationError('Длина текста на должна превышать 4000 символов')
+

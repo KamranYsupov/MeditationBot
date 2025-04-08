@@ -34,9 +34,15 @@ class Meditation(AsyncBaseModel):
         max_length=1000
     )
 
+    order = models.PositiveIntegerField(
+        _('Порядок'),
+        default=0,
+    )
+
     class Meta:
         verbose_name = _('Медитация')
         verbose_name_plural = _('Медитации')
+        ordering = ['order']
 
     def __str__(self):
         return self.name

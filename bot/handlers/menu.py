@@ -165,7 +165,7 @@ async def meditation_handler(
         return
 
     buttons = {}
-    buttons['Оставить отзыв 📝'] = f'review_meditation_{meditation.id}'
+    buttons['Оставить отзыв / вопрос 📝'] = f'review_meditation_{meditation.id}'
     buttons['Назад'] = 'menu'
 
 
