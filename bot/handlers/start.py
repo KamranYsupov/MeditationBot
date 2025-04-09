@@ -4,6 +4,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InputFile, FSInputFile
 from asgiref.sync import sync_to_async
+from django.conf import settings
 
 from bot.handlers.state import RegisterState
 from bot.keyboards.inline import get_inline_menu_keyboard
@@ -28,11 +29,16 @@ async def start_command_handler(
     button_text = 'Отправить номер телефона 📲'
 
     bot_messages: BotMessages = await sync_to_async(BotMessages.load)()
-    welcome_video = FSInputFile(bot_messages.welcome_video.path)
+    welcome_video = FSInputFile(
+        bot_messages.welcome_video.path,
+        chunk_size=settings.BOT_FILE_CHUNK_SIZE
+    )
     await message.answer_video(
         video=welcome_video,
         caption=bot_messages.welcome_text,
         reply_markup=get_reply_contact_keyboard(button_text),
+        width=settings.DEFAULT_BOT_VIDEO_WIDTH,
+        height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
     )
 
 

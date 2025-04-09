@@ -6,7 +6,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
-from aiogram.types import InputFile, FSInputFile
+from aiogram.types import BufferedInputFile, FSInputFile
 from asgiref.sync import sync_to_async
 from django.conf import settings
 
@@ -170,7 +170,10 @@ async def meditation_handler(
 
 
     async def send_input_meditation_file():
-        meditation_file = FSInputFile(meditation.file.path)
+        meditation_file = FSInputFile(
+            meditation.file.path,
+            chunk_size=settings.BOT_FILE_CHUNK_SIZE
+        )
 
         await callback.message.edit_text('Отправляю медитацию . . .')
         video_message = await callback.message.answer_video(
@@ -178,7 +181,9 @@ async def meditation_handler(
             caption=meditation.text,
             reply_markup=get_inline_keyboard(
                 buttons=buttons
-            )
+            ),
+            width=settings.DEFAULT_BOT_VIDEO_WIDTH,
+            height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
         )
         meditation.file_id = video_message.video.file_id
         await meditation.asave()
@@ -193,7 +198,9 @@ async def meditation_handler(
             caption=meditation.text,
             reply_markup=get_inline_keyboard(
                 buttons=buttons
-            )
+            ),
+            width=settings.DEFAULT_BOT_VIDEO_WIDTH,
+            height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
         )
     except TelegramBadRequest:
         await send_input_meditation_file()
@@ -312,19 +319,27 @@ async def question_handler(
             bot=callback.bot
         )
 
-        input_file = FSInputFile(question_file.path)
+        input_file = FSInputFile(
+            question_file.path,
+            chunk_size=settings.BOT_FILE_CHUNK_SIZE
+        )
         send_method_args = (
             callback.from_user.id,
             input_file,
         )
+        send_method_kwargs = dict(
+            width=settings.DEFAULT_BOT_VIDEO_WIDTH,
+            height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+        ) if bot_send_method == callback.bot.send_video else {}
 
         if (is_any_file_sent or not question.video) and not question.text:
             await bot_send_method(
                 *send_method_args,
                 reply_markup=reply_markup,
+                **send_method_kwargs
             )
         else:
-            await bot_send_method(*send_method_args)
+            await bot_send_method(*send_method_args, **send_method_kwargs)
 
         is_any_file_sent = True
 
@@ -354,7 +369,15 @@ async def reviews_callback_handler(
             file_name=review.file.name,
             bot=callback.bot
         )
-        input_file = FSInputFile(review.file.path)
+        send_method_kwargs = dict(
+            width=settings.DEFAULT_BOT_VIDEO_WIDTH,
+            height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+        ) if bot_send_method == callback.bot.send_video else {}
+
+        input_file = FSInputFile(
+            review.file.path,
+            chunk_size=settings.BOT_FILE_CHUNK_SIZE
+        )
 
         if review != page[-1]:
             reply_markup = None
@@ -371,7 +394,8 @@ async def reviews_callback_handler(
         await bot_send_method(
             callback.from_user.id,
             input_file,
-            reply_markup=reply_markup
+            reply_markup=reply_markup,
+            **send_method_kwargs,
         )
 
 
@@ -389,10 +413,15 @@ async def menu_options_handler(
 
     await callback.message.delete()
     if option == 'society':
-        society_video = FSInputFile(bot_messages.society_video.path)
+        society_video = FSInputFile(
+            bot_messages.society_video.path,
+            chunk_size=settings.BOT_FILE_CHUNK_SIZE
+        )
         await callback.message.answer_video(
             video=society_video,
             reply_markup=reply_markup,
+            width=settings.DEFAULT_BOT_VIDEO_WIDTH,
+            height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
         )
 
         return
@@ -400,16 +429,15 @@ async def menu_options_handler(
     text = getattr(bot_messages, f'{option}_text')
 
     if option == 'about_teacher':
-        bot_send_method = get_bot_method_by_file_extension(
-            file_name=bot_messages.about_teacher_video.name,
-            bot=callback.bot
+        about_teacher_video = FSInputFile(
+            bot_messages.about_teacher_video.path,
+            chunk_size=settings.BOT_FILE_CHUNK_SIZE
         )
-        about_teacher_video = FSInputFile(bot_messages.about_teacher_video.path)
-        await bot_send_method(
-            callback.from_user.id,
-            about_teacher_video,
-            caption=text,
+        await callback.message.answer_video(
+            video=about_teacher_video,
             reply_markup=reply_markup,
+            width=settings.DEFAULT_BOT_VIDEO_WIDTH,
+            height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
         )
         return
 
