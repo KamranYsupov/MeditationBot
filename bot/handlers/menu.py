@@ -182,8 +182,8 @@ async def meditation_handler(
             reply_markup=get_inline_keyboard(
                 buttons=buttons
             ),
-            width=settings.DEFAULT_BOT_VIDEO_WIDTH,
-            height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+            width=16,
+            height=9,
         )
         meditation.file_id = video_message.video.file_id
         await meditation.asave()
@@ -199,8 +199,8 @@ async def meditation_handler(
             reply_markup=get_inline_keyboard(
                 buttons=buttons
             ),
-            width=settings.DEFAULT_BOT_VIDEO_WIDTH,
-            height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+            width=16,
+            height=9,
         )
     except TelegramBadRequest:
         await send_input_meditation_file()
