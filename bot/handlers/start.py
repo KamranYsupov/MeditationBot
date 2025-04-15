@@ -39,6 +39,7 @@ async def start_command_handler(
         reply_markup=get_reply_contact_keyboard(button_text),
         width=settings.DEFAULT_BOT_VIDEO_WIDTH,
         height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+        supports_streaming=True,
     )
 
 

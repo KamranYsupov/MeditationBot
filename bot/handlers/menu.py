@@ -184,6 +184,7 @@ async def meditation_handler(
             ),
             width=16,
             height=9,
+            supports_streaming=True,
         )
         meditation.file_id = video_message.video.file_id
         await meditation.asave()
@@ -201,6 +202,7 @@ async def meditation_handler(
             ),
             width=16,
             height=9,
+            supports_streaming=True,
         )
     except TelegramBadRequest:
         await send_input_meditation_file()
@@ -330,6 +332,7 @@ async def question_handler(
         send_method_kwargs = dict(
             width=settings.DEFAULT_BOT_VIDEO_WIDTH,
             height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+            supports_streaming=True,
         ) if bot_send_method == callback.bot.send_video else {}
 
         if (is_any_file_sent or not question.video) and not question.text:
@@ -372,6 +375,7 @@ async def reviews_callback_handler(
         send_method_kwargs = dict(
             width=settings.DEFAULT_BOT_VIDEO_WIDTH,
             height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+            supports_streaming=True,
         ) if bot_send_method == callback.bot.send_video else {}
 
         input_file = FSInputFile(
@@ -422,6 +426,7 @@ async def menu_options_handler(
             reply_markup=reply_markup,
             width=settings.DEFAULT_BOT_VIDEO_WIDTH,
             height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+            supports_streaming=True,
         )
 
         return
@@ -438,6 +443,7 @@ async def menu_options_handler(
             reply_markup=reply_markup,
             width=settings.DEFAULT_BOT_VIDEO_WIDTH,
             height=settings.DEFAULT_BOT_VIDEO_HEIGHT,
+            supports_streaming=True,
         )
         return
 
