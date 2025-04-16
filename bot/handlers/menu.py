@@ -310,8 +310,6 @@ async def question_handler(
 
     await callback.message.delete()
 
-    is_any_file_sent = False
-
     for question_file in (question.photo, question.video):
         if not question_file:
             continue
@@ -335,16 +333,11 @@ async def question_handler(
             supports_streaming=True,
         ) if bot_send_method == callback.bot.send_video else {}
 
-        if (is_any_file_sent or not question.video) and not question.text:
-            await bot_send_method(
-                *send_method_args,
-                reply_markup=reply_markup,
-                **send_method_kwargs
-            )
-        else:
-            await bot_send_method(*send_method_args, **send_method_kwargs)
-
-        is_any_file_sent = True
+        await bot_send_method(
+            *send_method_args,
+            reply_markup=reply_markup,
+            **send_method_kwargs
+        )
 
     if question.text:
         await callback.message.answer(
